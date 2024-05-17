@@ -15,6 +15,16 @@ args=$*
 
 # save the current working directory to a variable
 cwd=$(pwd)
+dev_env="unknown"
+
+# Check if .pls.yml exists
+if [ -f .pls.yml ]; then
+    # Read the value for 'dev_env' property from .pls.yml
+    dev_env=$(yq e '.dev_env' .pls.yml)
+    echo "Value of 'dev_env' is: $dev_env"
+else
+    echo "Warning: .pls.yml does not exist."
+fi
 
 # save os name to a variable
 os=$(
@@ -36,7 +46,7 @@ response=$(curl -s https://api.openai.com/v1/chat/completions \
   -H 'Authorization: Bearer '$token'' \
   -d '{
   "model": "gpt-4o",
-  "messages": [{"role": "system", "content": "You are a helpful assistant. You will generate '$SHELL' commands based on user input. Your response should contain ONLY the command and NO explanation. Do NOT ever use newlines to seperate commands, instead use ; or &&. The operating system is '$os'. The current working directory is '$cwd'."}, {"role": "user", "content": "'"$args"'"}],
+  "messages": [{"role": "system", "content": "You are a helpful assistant. You will generate '$SHELL' commands based on user input. Your response should contain ONLY the command and NO explanation. Do NOT ever use newlines to seperate commands, instead use ; or &&. The operating system is '$os'. The current working directory is '$cwd'. The current development environment is '$dev_env'."}, {"role": "user", "content": "'"$args"'"}],
   "temperature": 0.0
 }')
 
